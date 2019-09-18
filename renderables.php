@@ -578,9 +578,12 @@ class attendance_report_data implements renderable {
         }
 
         foreach ($this->users as $key => $user) {
-            $usersummary = $this->summary->get_taken_sessions_summary_for($user->id);
+            // $usersummary = $this->summary->get_taken_sessions_summary_for($user->id);
+            /* Customização Infnet: forçar a usar máximo resultado possível em todos os casos - início */
+            $usersummary = $this->summary->get_all_sessions_summary_for($user->id);
+            /* Customização Infnet: forçar a usar máximo resultado possível em todos os casos - fim */
             if ($att->pageparams->view != ATT_VIEW_NOTPRESENT ||
-                attendance_calc_fraction($usersummary->takensessionspoints, $usersummary->takensessionsmaxpoints) <
+            attendance_calc_fraction($usersummary->takensessionspoints, $usersummary->takensessionsmaxpoints) <
                 $att->get_lowgrade_threshold()) {
 
                 $this->usersgroups[$user->id] = groups_get_all_groups($att->course->id, $user->id);

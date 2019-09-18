@@ -255,11 +255,11 @@
     overflow-x: scroll;
     overflow-y: visible;
     padding: 0;
-    margin-left: 180px;
+    /* margin-left: 180px; */
 }
 
 #page-mod-attendance-report .attendancereporttable .headcol {
-    position: absolute;
+    /* position: absolute; */
     width: 200px;
     left: 15px;
     top: auto;
@@ -279,11 +279,11 @@
 #page-mod-attendance-report.has-region-side-pre:not(.empty-region-side-pre) .attendancereporttable .headcol {
     left: 370px;
 }
-
+/*
 #page-mod-attendance-report.has-region-side-pre:not(.empty-region-side-pre) .attendancereporttable {
     margin-left: 230px;
 }
-
+/* */
 #page-mod-attendance-report.has-region-side-pre:not(.empty-region-side-pre).content-only .attendancereporttable .headcol {
     left: 80px;
 }

@@ -193,6 +193,12 @@ class mod_attendance_summary {
         $usersummary->pointsallsessions = format_float($usersummary->takensessionspoints, 1, true, true) . ' / ' .
             format_float($usersummary->allsessionsmaxpoints, 1, true, true);
 
+        /* Customização Infnet: forçar a usar máximo resultado possível em todos os casos - início */
+        $this->userspoints[$userid]->points = $usersummary->takensessionspoints + $deltapoints;
+        $this->userspoints[$userid]->maxpoints = $usersummary->allsessionsmaxpoints;
+        $usersummary->maxpossiblepercentagefloat = attendance_calc_fraction(($usersummary->takensessionspoints + $deltapoints),
+                                                                       $usersummary->allsessionsmaxpoints);
+        /* Customização Infnet: forçar a usar máximo resultado possível em todos os casos - fim */
         return $usersummary;
     }
 
