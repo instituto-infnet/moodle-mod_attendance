@@ -1222,7 +1222,8 @@ class mod_attendance_renderer extends plugin_renderer_base {
             $output .= html_writer::empty_tag('input', array('name' => 'id', 'type' => 'hidden', 'value' => $COURSE->id));
             $output .= html_writer::empty_tag('input', array('name' => 'returnto', 'type' => 'hidden', 'value' => s(me())));
             $output .= html_writer::start_div('attendancereporttable');
-            $output .= html_writer::table($table).html_writer::tag('div', get_string('users').': '.count($reportdata->users));
+            // $output .= html_writer::table($table).html_writer::tag('div', get_string('users').': '.count($reportdata->users));
+            $output .= html_writer::table($table).html_writer::tag('div', get_string('students').': '.count($reportdata->users));
             $output .= html_writer::end_div();
             $output .= html_writer::tag('div',
                     html_writer::empty_tag('input', array('type' => 'submit',
@@ -1232,7 +1233,8 @@ class mod_attendance_renderer extends plugin_renderer_base {
             $url = new moodle_url('/mod/attendance/messageselect.php');
             return html_writer::tag('form', $output, array('action' => $url->out(), 'method' => 'post'));
         } else {
-            return html_writer::table($table).html_writer::tag('div', get_string('users').': '.count($reportdata->users));
+            // return html_writer::table($table).html_writer::tag('div', get_string('users').': '.count($reportdata->users));
+            return html_writer::table($table).html_writer::tag('div', get_string('students').': '.count($reportdata->users));
         }
     }
 
@@ -1399,8 +1401,10 @@ class mod_attendance_renderer extends plugin_renderer_base {
         $summarycells = array();
 
         $row1 = new html_table_row();
-        $helpicon = $this->output->help_icon('oversessionstaken', 'attendance');
-        $row1->cells[] = $this->build_header_cell(get_string('oversessionstaken', 'attendance') . $helpicon, $contrast, true, 3);
+        // $helpicon = $this->output->help_icon('oversessionstaken', 'attendance');
+        // $row1->cells[] = $this->build_header_cell(get_string('oversessionstaken', 'attendance') . $helpicon, $contrast, true, 3);
+        $helpicon = $this->output->help_icon('maxpossible', 'attendance');
+        $row1->cells[] = $this->build_header_cell(get_string('maxpossible', 'attendance') . $helpicon, $contrast, true, 3);
 
         $row2 = new html_table_row();
         $row2->cells[] = $this->build_header_cell(get_string('sessions', 'attendance'), $contrast);
