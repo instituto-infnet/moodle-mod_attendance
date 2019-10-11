@@ -256,12 +256,8 @@ function attendance_update_users_grade($attendance, $userids=array()) {
         $grades[$userid]->userid = $userid;
 
         if ($summary->has_taken_sessions($userid)) {
-            //$usersummary = $summary->get_taken_sessions_summary_for($userid);
-            // $grades[$userid]->rawgrade = $usersummary->takensessionspercentage * $attendancegrade;
-            /* Customização Infnet: forçar a usar máximo resultado possível em todos os casos - início */
-            $usersummary = $summary->get_all_sessions_summary_for($userid);
-            $grades[$userid]->rawgrade = $usersummary->maxpossiblepercentagefloat * $attendancegrade;
-            /* Customização Infnet: forçar a usar máximo resultado possível em todos os casos - fim */
+            $usersummary = $summary->get_taken_sessions_summary_for($userid);
+            $grades[$userid]->rawgrade = $usersummary->takensessionspercentage * $attendancegrade;
         } else {
             $grades[$userid]->rawgrade = null;
         }
