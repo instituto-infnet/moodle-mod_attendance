@@ -49,6 +49,11 @@ class mod_attendance_summary {
     /** @var array pointsbygroup (groupid, numsessions, maxpoints) */
     private $maxpointsbygroupsessions;
 
+    /* Infnet - max points from previous sessions */
+    /** @var array pointsbygroup (groupid, numsessions, maxpoints) */
+    private $maxpointsbygroupprevioussessions;
+    /* Infnet - max points from previous sessions */
+
     /** @var array userstakensessionsbyacronym */
     private $userstakensessionsbyacronym;
 
@@ -65,6 +70,10 @@ class mod_attendance_summary {
 
         $this->compute_users_points($userids, $startdate, $enddate);
         $this->compute_users_taken_sessions_by_acronym($userids, $startdate, $enddate);
+
+        /* Infnet - max points from previous sessions */
+        $this->compute_maxpoints_by_group_previous_session();
+        /* Infnet - max points from previous sessions */
     }
 
     /**
@@ -120,15 +129,25 @@ class mod_attendance_summary {
      */
     public function get_taken_sessions_summary_for($userid) {
         $usersummary = new stdClass();
+
+        /* Infnet - max points from previous sessions */
+        $usersummary->allprevioussessionsmaxpoints = $this->maxpointsbygroupprevioussessions[0]->maxpoints;
+        /* Infnet - max points from previous sessions */
+
         if ($this->has_taken_sessions($userid)) {
             $usersummary->numtakensessions = $this->userspoints[$userid]->numtakensessions;
             $usersummary->takensessionspoints = $this->userspoints[$userid]->points;
             $usersummary->takensessionsmaxpoints = $this->userspoints[$userid]->maxpoints;
-        } else {
+    } else {
             $usersummary->numtakensessions = 0;
             $usersummary->takensessionspoints = 0;
             $usersummary->takensessionsmaxpoints = 0;
         }
+        /* Infnet - max points from previous sessions */
+        $usersummary->deltapreviouspoints = $usersummary->allprevioussessionsmaxpoints - $usersummary->takensessionsmaxpoints;
+        $usersummary->takensessionspoints = $usersummary->takensessionspoints + $usersummary->deltapreviouspoints;
+        $usersummary->takensessionsmaxpoints = $usersummary->allprevioussessionsmaxpoints;
+        /* Infnet - max points from previous sessions */
         $usersummary->takensessionspercentage = attendance_calc_fraction($usersummary->takensessionspoints,
                                                                          $usersummary->takensessionsmaxpoints);
         if (isset($this->userstakensessionsbyacronym[$userid])) {
@@ -364,4 +383,49 @@ class mod_attendance_summary {
             $this->maxpointsbygroupsessions[0] = $gpoints;
         }
     }
-}
+
+    /**
+     * Infnet custom function
+     * Computes and store the maximum points possible for each group session
+     * that started before the present date and time.
+     *
+     * @return null
+     */
+    private function compute_maxpoints_by_group_previous_session() {
+        global $DB;
+
+        $params = array(
+            'attid'      => $this->attendanceid,
+            'attid2'     => $this->attendanceid,
+            'cstartdate' => $this->course->startdate,
+            );
+
+        $where = '';
+        if (!$this->with_groups()) {
+            $where = 'AND sess.groupid = 0';
+        }
+
+        $sql = "SELECT sess.groupid, COUNT(*) AS numsessions, SUM(stamax.maxgrade) AS maxpoints
+                  FROM {attendance_sessions} sess
+                  JOIN (SELECT setnumber, MAX(grade) AS maxgrade
+                                             FROM {attendance_statuses}
+                                            WHERE attendanceid = :attid2
+                                              AND deleted = 0
+                                              AND visible = 1
+                                           GROUP BY setnumber) stamax
+                    ON (stamax.setnumber = sess.statusset)
+                 WHERE sess.attendanceid = :attid
+                   AND sess.sessdate >= :cstartdate
+                   AND sess.sessdate <= UNIX_TIMESTAMP()
+                   {$where}
+              GROUP BY sess.groupid";
+        $this->maxpointsbygroupprevioussessions = $DB->get_records_sql($sql, $params);
+
+        if (!isset($this->maxpointsbygroupprevioussessions[0])) {
+            $gpoints = new stdClass();
+            $gpoints->numsessions = 0;
+            $gpoints->maxpoints = 0;
+            $this->maxpointsbygroupprevioussessions[0] = $gpoints;
+        }
+    }}
+    /* Infnet - max points from previous sessions */
